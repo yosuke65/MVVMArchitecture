@@ -8,7 +8,7 @@ import retrofit2.http.GET
 
 
 object ApiClient {
-    private const val BASE_URL = "https://ghapi.huchen.dev/"
+    const val BASE_URL = "https://ghapi.huchen.dev/"
 
     private val _endpoint: Endpoint by lazy {
         val client = Retrofit.Builder()
