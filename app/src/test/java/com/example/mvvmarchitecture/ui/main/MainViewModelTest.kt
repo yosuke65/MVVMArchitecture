@@ -1,17 +1,13 @@
 package com.example.mvvmarchitecture.ui.main
 
-import com.example.mvvmarchitecture.api.ApiClient
+import com.example.mvvmarchitecture.models.RepositoryItem
+import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.Spy
-import org.mockito.junit.MockitoJUnit
 import org.mockito.runners.MockitoJUnitRunner
 
 
@@ -34,33 +30,52 @@ class MainViewModelTest {
     @Before
     fun setUp() {
         println("Before the test case")
-        val mainRepository = MainRepository(ApiClient.getApiEndpoint())
         mainViewModel = MainViewModel(mainRepository)
     }
 
     @Test
+    fun test_repository_data()  = runBlocking{
+        val list = ArrayList<RepositoryItem>()
+        list.add(
+            RepositoryItem(
+                author = "test1_author",
+                description = "test1_desc",
+                language = "en",
+                name = "test1",
+                avatar = "",
+                url = "",
+                stars = 5
+            )
+        )
+        list.add(
+            RepositoryItem(
+                author = "test2_author",
+                description = "test2_desc",
+                language = "en",
+                name = "test2",
+                avatar = "",
+                url = "",
+                stars = 2
+            )
+        )
+        Mockito.doReturn(list).`when`(mainRepository).getDataFromApiSuspend()
+        mainViewModel.getDataFromApi()
+        val result = mainViewModel.getRepoObserver().value
+        assert(result?.size == 2)
+    }
+
+    @Test
     fun onButtonClicked() {
-        Mockito.doNothing().`when`(mainRepository)
-        mainViewModel.onButtonClicked()
-        Mockito.verify(mainRepository).getDataFromApi()
+        runBlocking {
+            Mockito.doNothing().`when`(mainRepository).getDataFromApiSuspend()
+            mainViewModel.onButtonClicked()
+            Mockito.verify(mainRepository).getDataFromApiSuspend()
+        }
     }
 
-    @Test
-    fun welcomeMessage() {
-        val myMsg = "Hello"
-        Mockito.`when`(mainRepository.getWelcomeMsg()).thenReturn(myMsg)
-        val msg = mainRepository.getWelcomeMsg()
-        Assert.assertEquals(myMsg, msg)
-    }
 
-    @Test
-    fun testIsNUmberOdd(){
-        Assert.assertEquals(true, mainViewModel.isNumberOdd(35))
-        Assert.assertEquals(true, mainViewModel.isNumberOdd(15))
-        Assert.assertEquals(false, mainViewModel.isNumberOdd(2))
-    }
     @After
-    fun cleanUp(){
+    fun cleanUp() {
         println("After the test case")
     }
 }

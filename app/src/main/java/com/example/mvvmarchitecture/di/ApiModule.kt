@@ -1,7 +1,7 @@
 package com.example.mvvmarchitecture.di
 
 import androidx.annotation.RestrictTo
-import com.example.mvvmarchitecture.api.ApiClient
+//import com.example.mvvmarchitecture.api.ApiClient
 import com.example.mvvmarchitecture.api.Endpoint
 import dagger.Module
 import dagger.Provides
@@ -16,7 +16,7 @@ class ApiModule {
     @Provides
     fun provideRetrofitClient():Retrofit{
         return  Retrofit.Builder()
-            .baseUrl(ApiClient.BASE_URL)
+            .baseUrl("https://ghapi.huchen.dev/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

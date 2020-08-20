@@ -7,20 +7,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
 
-object ApiClient {
-    const val BASE_URL = "https://ghapi.huchen.dev/"
-
-    private val _endpoint: Endpoint by lazy {
-        val client = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        client.create(Endpoint::class.java)
-    }
-
-    fun getApiEndpoint(): Endpoint = _endpoint
-}
+//object ApiClient {
+//    const val BASE_URL = "https://ghapi.huchen.dev/"
+//
+//    private val _endpoint: Endpoint by lazy {
+//        val client = Retrofit.Builder()
+//            .baseUrl(BASE_URL)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//
+//        client.create(Endpoint::class.java)
+//    }
+//
+//    fun getApiEndpoint(): Endpoint = _endpoint
+//}
 
 interface Endpoint {
     

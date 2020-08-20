@@ -1,8 +1,13 @@
 package com.example.mvvmarchitecture.ui.main
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.mvvmarchitecture.models.RepositoryItem
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 
 class MainViewModel(private val mainRepository: MainRepository) : ViewModel() {
@@ -10,29 +15,31 @@ class MainViewModel(private val mainRepository: MainRepository) : ViewModel() {
         const val TAG = "MainViewModel"
     }
 
-    fun getRepoObserver() = mainRepository.listRepositoryItem
+    private val listRepositoryItem: MutableLiveData<List<RepositoryItem>> by lazy {
+        MutableLiveData<List<RepositoryItem>>()
+    }
+
+    fun getRepoObserver() = listRepositoryItem
 
 
     fun onButtonClicked() {
-        mainRepository.getDataFromApi()
+//        mainRepository.getDataFromApi()
+        getDataFromApi()
+    }
+
+    fun getDataFromApi(){
+        val result = viewModelScope.async {
+           val list = mainRepository.getDataFromApiSuspend()
+            listRepositoryItem.postValue(list)
+        }
     }
 
 
     override fun onCleared() {
         super.onCleared()
-        Log.v("MainViewModel", "onCleared()")
+        Log.v(TAG, "onCleared(): MainViewModel destroyed")
     }
 
-    fun isNumberOdd(i: Int):Boolean {
-        return i%2!=0
-    }
-
-
-    fun isEmailAddressValid(email:String):Boolean{
-        val regex = "^(.+)@(.+)$"
-        val pattern: Pattern = Pattern.compile(regex)
-        return email.matches(Regex(regex))
-    }
 }
 
 /**
