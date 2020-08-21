@@ -1,14 +1,19 @@
 package com.example.mvvmarchitecture.ui.main
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.mvvmarchitecture.models.RepositoryItem
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
+import org.mockito.Spy
 import org.mockito.runners.MockitoJUnitRunner
+import javax.inject.Inject
 
 
 /**
@@ -23,19 +28,22 @@ class MainViewModelTest {
 
     @Mock
     lateinit var mainRepository: MainRepository
-//
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 //    @Spy
-//    lateinit var mainRepositoryActual: MainRepository
+//    lateinit var mainRepository: MainRepository
 
     @Before
     fun setUp() {
         println("Before the test case")
+//        MockitoAnnotations.initMocks(MainRepository::class.java)
         mainViewModel = MainViewModel(mainRepository)
     }
 
     @Test
     fun test_repository_data()  = runBlocking{
-        val list = ArrayList<RepositoryItem>()
+        var list = ArrayList<RepositoryItem>()
         list.add(
             RepositoryItem(
                 author = "test1_author",
@@ -58,20 +66,22 @@ class MainViewModelTest {
                 stars = 2
             )
         )
+        println(list?.size)
         Mockito.doReturn(list).`when`(mainRepository).getDataFromApiSuspend()
         mainViewModel.getDataFromApi()
         val result = mainViewModel.getRepoObserver().value
+        println(result?.size)
         assert(result?.size == 2)
     }
 
-    @Test
-    fun onButtonClicked() {
-        runBlocking {
-            Mockito.doNothing().`when`(mainRepository).getDataFromApiSuspend()
-            mainViewModel.onButtonClicked()
-            Mockito.verify(mainRepository).getDataFromApiSuspend()
-        }
-    }
+//    @Test
+//    fun onButtonClicked() {
+//        runBlocking {
+//            Mockito.doNothing().`when`(mainRepository).getDataFromApiSuspend()
+//            mainViewModel.onButtonClicked()
+//            Mockito.verify(mainRepository).getDataFromApiSuspend()
+//        }
+//    }
 
 
     @After
