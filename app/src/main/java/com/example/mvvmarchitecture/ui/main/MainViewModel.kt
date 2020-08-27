@@ -15,11 +15,11 @@ class MainViewModel(private val mainRepository: MainRepository) : ViewModel() {
         const val TAG = "MainViewModel"
     }
 
-    private val listRepositoryItem: MutableLiveData<List<RepositoryItem>> by lazy {
-        MutableLiveData<List<RepositoryItem>>()
+    private val listRepositoryItem: MutableLiveData<List<RepositoryItem>?> by lazy {
+        MutableLiveData<List<RepositoryItem>?>()
     }
 
-    fun getRepoObserver() = listRepositoryItem
+   fun getRepoObserver() = listRepositoryItem
 
 
     fun onButtonClicked() {
@@ -28,9 +28,11 @@ class MainViewModel(private val mainRepository: MainRepository) : ViewModel() {
     }
 
     fun getDataFromApi(){
-        val result = viewModelScope.async {
+        viewModelScope.launch {
            val list = mainRepository.getDataFromApiSuspend()
+            println("Hey I  got the result ${list?.size?:0}")
             listRepositoryItem.postValue(list)
+//            Log.d(TAG, "getDataFromApi called")
         }
     }
 

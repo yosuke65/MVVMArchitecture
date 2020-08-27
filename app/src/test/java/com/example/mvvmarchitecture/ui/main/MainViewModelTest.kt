@@ -2,7 +2,12 @@ package com.example.mvvmarchitecture.ui.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.mvvmarchitecture.models.RepositoryItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -10,10 +15,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.Mockito.`when`
 import org.mockito.Spy
-import org.mockito.runners.MockitoJUnitRunner
-import javax.inject.Inject
+import org.mockito.junit.MockitoJUnitRunner;
 
 
 /**
@@ -21,28 +25,66 @@ import javax.inject.Inject
  * 2. Unit test doesn't require any device(virtual or actual mobile)
  * 3. 80% of your code should be covered in Unit test case
  */
+@ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
 class MainViewModelTest {
 
     private lateinit var mainViewModel: MainViewModel
-
+//    @Spy
     @Mock
     lateinit var mainRepository: MainRepository
 
+
+    //    //A JUnit Test Rule that swaps the background executor used by the Architecture Components with a different one which executes each task synchronously.
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
-//    @Spy
-//    lateinit var mainRepository: MainRepository
+
+
+    private val testCoroutineThread = TestCoroutineDispatcher()
 
     @Before
     fun setUp() {
         println("Before the test case")
-//        MockitoAnnotations.initMocks(MainRepository::class.java)
+        Dispatchers.setMain(testCoroutineThread)
+//        mainRepository = Mockito.mock(MainRepository::class.java)
         mainViewModel = MainViewModel(mainRepository)
     }
 
     @Test
-    fun test_repository_data()  = runBlocking{
+    fun test_repository_data() {
+
+        runBlocking {
+            println(getDummyData()?.size)
+
+            `when`(mainRepository.getDataFromApiSuspend())
+                .thenReturn(getDummyData())
+            mainViewModel.getDataFromApi()
+            val result = mainViewModel.getRepoObserver().value
+            println(result?.size)
+            assert(result?.size == 2)
+        }
+
+    }
+
+
+//    @Test
+//    fun onButtonClicked() {
+//        runBlocking {
+//            Mockito.doNothing().`when`(mainRepository).getDataFromApiSuspend()
+//            mainViewModel.onButtonClicked()
+//            Mockito.verify(mainRepository).getDataFromApiSuspend()
+//        }
+//    }
+
+
+    @After
+    fun cleanUp() {
+        println("After the test case")
+        Dispatchers.resetMain()
+        testCoroutineThread.cleanupTestCoroutines()
+    }
+
+    private fun getDummyData(): List<RepositoryItem>? {
         var list = ArrayList<RepositoryItem>()
         list.add(
             RepositoryItem(
@@ -66,26 +108,6 @@ class MainViewModelTest {
                 stars = 2
             )
         )
-        println(list?.size)
-        Mockito.doReturn(list).`when`(mainRepository).getDataFromApiSuspend()
-        mainViewModel.getDataFromApi()
-        val result = mainViewModel.getRepoObserver().value
-        println(result?.size)
-        assert(result?.size == 2)
-    }
-
-//    @Test
-//    fun onButtonClicked() {
-//        runBlocking {
-//            Mockito.doNothing().`when`(mainRepository).getDataFromApiSuspend()
-//            mainViewModel.onButtonClicked()
-//            Mockito.verify(mainRepository).getDataFromApiSuspend()
-//        }
-//    }
-
-
-    @After
-    fun cleanUp() {
-        println("After the test case")
+        return list
     }
 }

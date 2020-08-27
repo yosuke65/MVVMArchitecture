@@ -11,21 +11,21 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.awaitResponse
 
-open class MainRepository(private val endpoint: Endpoint) {
+class MainRepository(private val endpoint: Endpoint) {
 
     companion object {
         private const val TAG = "MainRepository"
     }
 
 
-    open suspend fun getDataFromApiSuspend(): List<RepositoryItem>? {
+    suspend fun getDataFromApiSuspend(): List<RepositoryItem>? {
         return withContext(Dispatchers.IO) {
             val call = endpoint.getRepositoryURL()
-//            val response = call.execute()
-//            if (response.code() in 200..399) {
-            val response = call.awaitResponse()
-            Log.d(TAG, "Get the response: ${response}")
-            if (response.isSuccessful) {
+            val response = call.execute()
+            if (response.code() in 200..399) {
+//            val response = call.awaitResponse()
+//            Log.d(TAG, "Get the response: ${response}")
+//            if (response.isSuccessful) {
                 response.body()
             } else {
                 null
